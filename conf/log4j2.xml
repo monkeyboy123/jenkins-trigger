@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="debug" dev="err" packages="org.apache.logging.log4j.core,io.sentry.log4j2">
+  <Appenders>
+    <Console name="STDOUT">
+      <PatternLayout pattern="%d{DEFAULT} %tid [%tn] %p %c{1}: %m%n"/>
+    </Console>
+    <Sentry name="Sentry" />
+    <Syslog name="RFC5424" format="RFC5424" host="localhost" port="514"
+            protocol="UDP" appName="recommend-metric-log:"
+            facility="LOCAL4" enterpriseNumber="18060" newLine="true"
+            messageId="Audit" mdcId="mdc">
+      <!--<PatternLayout pattern="${hostName} recommend-metric-log: %m%n"/>-->
+      <LoggerFields>
+        <KeyValuePair key="thread" value="%t"/>
+        <KeyValuePair key="priority" value="%p"/>
+        <KeyValuePair key="category" value="%c"/>
+        <KeyValuePair key="exception" value="%ex"/>
+        <KeyValuePair key="message" value="%m"/>
+      </LoggerFields>
+    </Syslog>
+    <Socket name="SYSLOG" host="${hostName}" port="514" protocol="UDP">
+      <PatternLayout pattern="&lt;166&gt;recommend-metric-log: %m%n"/>
+    </Socket>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="STDOUT"/>
+      <AppenderRef ref="Sentry" level="ERROR"/>
+    </Root>
+    <Logger name="com.dxy.data.utils.SyslogPrinter$">
+      <Property name="hostName">$${HOSTNAME}</Property>
+      <Appender-ref ref="SYSLOG"/>
+    </Logger>
+  </Loggers>
+</Configuration>
